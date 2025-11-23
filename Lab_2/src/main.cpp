@@ -9,11 +9,11 @@
 #include "Wire.h"
 #include <ArduinoOTA.h>
 
-// constexpr char WIFI_SSID[] = "BiBo";
-// constexpr char WIFI_PASSWORD[] = "trunghieu3868";
+constexpr char WIFI_SSID[] = "BiBo";
+constexpr char WIFI_PASSWORD[] = "trunghieu3868";
 
-constexpr char WIFI_SSID[] = "ACLAB";
-constexpr char WIFI_PASSWORD[] = "ACLAB2023";
+// constexpr char WIFI_SSID[] = "ACLAB";
+// constexpr char WIFI_PASSWORD[] = "ACLAB2023";
 
 constexpr char TOKEN[] = "zlsipx56kbga4pskbzmy";
 

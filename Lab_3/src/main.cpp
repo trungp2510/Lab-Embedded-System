@@ -154,44 +154,7 @@ void WiFiTask(void *pvParameters) {
   }
 }
 
-void serverTask(void *pvParameters) {
-  while(1) {
-    if(WiFi.status()!= WL_CONNECTED){
-      return;
-    }
-    if (!tb.connected()) {
-      Serial.print("Connecting to: ");
-      Serial.print(THINGSBOARD_SERVER);
-      Serial.print(" with token ");
-      Serial.println(TOKEN);
-      if (!tb.connect(THINGSBOARD_SERVER, TOKEN, THINGSBOARD_PORT)) {
-        Serial.println("Failed to connect");
-        return;
-      }
-  
-      Serial.println("Subscribing for RPC...");
-      if (!tb.RPC_Subscribe(callbacks.cbegin(), callbacks.cend())) {
-        Serial.println("Failed to subscribe for RPC");
-        return;
-      }
-  
-      if (!tb.Shared_Attributes_Subscribe(attributes_callback)) {
-        Serial.println("Failed to subscribe for shared attribute updates");
-        return;
-      }
-  
-      Serial.println("Subscribe done");
-  
-      if (!tb.Shared_Attributes_Request(attribute_shared_request_callback)) {
-        Serial.println("Failed to request for shared attributes");
-        return;
-      }
-    }else if(tb.connected()){
-      tb.loop();
-    }
-    vTaskDelay(1000);
-  }
-}
+
 
 void setupAI(){
   static tflite::MicroErrorReporter micro_error_reporter;
@@ -268,13 +231,6 @@ void sendTask(void * pvParameters) {
       Serial.println(" %");
       global_temperature = temperature;
       global_humidity = humidity;
-      if(WiFi.status() == WL_CONNECTED){
-      String jsonPayload = "{";
-      jsonPayload += "\"temperature\":" + String(temperature, 2) + ",";
-      jsonPayload += "\"humidity\":" + String(humidity, 2);
-      jsonPayload += "}";
-      tb.sendTelemetryJson(jsonPayload.c_str());
-      }
     }
     vTaskDelay(1000);
   }
@@ -285,16 +241,11 @@ void setup() {
   delay(1000);
   Wire.begin(SDA_PIN, SCL_PIN);
   dht20.begin();
-  
-
-  
-  
   xTaskCreate(sendTask, "sendTask", 4096, NULL, 2, NULL);
   xTaskCreate(LedTask,"ledTask", 2048, NULL, 2, NULL);
   xTaskCreate(neo_blinky,"neo_blinky", 2048, NULL, 2, NULL);
   xTaskCreate(AITask, "AITask", 8192, NULL, 3, NULL);
   xTaskCreate(main_server_task, "main_server_task", 8192, NULL, 2, NULL);
-  xTaskCreate(serverTask, "serverTask", 4096, NULL, 3, NULL);
 }
 
 void loop() {
